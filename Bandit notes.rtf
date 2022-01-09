@@ -1,0 +1,55 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2580
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica-Light;}
+{\colortbl;\red255\green255\blue255;\red0\green0\blue0;\red49\green49\blue49;\red255\green255\blue255;
+}
+{\*\expandedcolortbl;;\cssrgb\c0\c0\c0;\cssrgb\c25098\c25098\c25098;\cssrgb\c100000\c100000\c100000;
+}
+{\*\listtable{\list\listtemplateid1\listhybrid{\listlevel\levelnfc0\levelnfcn0\leveljc0\leveljcn0\levelfollow0\levelstartat1\levelspace360\levelindent0{\*\levelmarker \{decimal\}.}{\leveltext\leveltemplateid1\'02\'00.;}{\levelnumbers\'01;}\fi-360\li720\lin720 }{\listname ;}\listid1}
+{\list\listtemplateid2\listhybrid{\listlevel\levelnfc23\levelnfcn23\leveljc0\leveljcn0\levelfollow0\levelstartat1\levelspace360\levelindent0{\*\levelmarker \{disc\}}{\leveltext\leveltemplateid101\'01\uc0\u8226 ;}{\levelnumbers;}\fi-360\li720\lin720 }{\listlevel\levelnfc23\levelnfcn23\leveljc0\leveljcn0\levelfollow0\levelstartat1\levelspace360\levelindent0{\*\levelmarker \{none\}}{\leveltext\leveltemplateid102\'00;}{\levelnumbers;}\fi-360\li1440\lin1440 }{\listname ;}\listid2}}
+{\*\listoverridetable{\listoverride\listid1\listoverridecount0\ls1}{\listoverride\listid2\listoverridecount0\ls2}}
+\paperw11900\paperh16840\margl1440\margr1440\vieww28600\viewh18000\viewkind0
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 \
+\
+\pard\pardeftab720\sa240\partightenfactor0
+\cf2 \expnd0\expndtw0\kerning0
+We need to define two types of behaviors that any algorithm for solving the Multiarmed Bandit Problem should pro\uc0\u8208  vide: \
+select_arm \
+Every time we have to make a choice about which arm to pull, we want to be able to simply make a call to our favorite algorithm and have it tell us the numeric name of the arm we should pull. Throughout this book, all of the bandit algorithms will implement a select_arm method that is called without any arguments and which returns the index of the next arm to pull. \
+update \
+After we pull an arm, we get a reward signal back from our system. (In the next chapter, we\'92ll describe a testing framework we\'92ve built that simulates these rewards so that we can debug our bandit algorithms.) We want to update our algorithm\'92s beliefs about the quality of the arm we just chose by providing this reward information. Throughout this book, all of the bandit algorithms handle this by providing an update function that takes as arguments (1) an algorithm object, (2) the numeric index of the most recently chosen arm and (3) the reward received from choosing that arm. The update method will take this information and make the relevant changes to the algorithm\'92s evaluation of all of the arms. \
+\
+Simulating the Arms of a Bandit Problem \
+In order to reasonably simulate what might happen if you were to deploy an  algorithm in production, we need to set up some hypothetical arms. For this book, we\'92re going to focus on a very simple type of simulated arm that\'92s easy to implement correctly. This hypothetical arm will let us simulate settings like: \
+\'95 Optimizing click-through rates for ads: Every time we show someone an ad, we\'92ll imagine that there\'92s a fixed probability that they\'92ll click on the ad. The bandit algorithm will then estimate this probability and try to decide on a strategy for show\uc0\u8208  ing ads that maximizes the click-through rate. \
+\
+\'95 Conversion rates for new users: Every time a new visitor comes to our site who isn\'92t already a registered user, we\'92ll imagine that there\'92s a fixed probability that they\'92ll register as a user after seeing the landing page. We\'92ll then estimate this probability and try to decide on a strategy for maximizing our conversion rate. \
+Our simulated arm is going to be called a Bernoulli arm. Calling this type of an arm a Bernoulli arm is just a jargony way of saying that we\'92re dealing with an arm that rewards you with a value of 1 some percentage of the time and rewards you with a value of 0 the rest of the time. This 0/1 framework is a very simple way to simulate situations like click- throughs or user signups: the potential user arrives at your site; you select an arm for them in which you, for example, show them one specific color logo; finally, they either do sign up for the site (and give you reward 1) or they don\'92t (and give you reward 0). If 2% of people who see a red logo sign up and 5% of people who see a green logo sign up, then you can abstract away the details and talk about two arms: one arm outputs 1 unit of reward 2% of the time, the other arm outputs 1 unit of reward 5% of the time. This situation is what we call a Bernoulli arm. \
+\
+First, there\'92s a class called BernoulliArm that has a single field, p, which tells us the probability of getting a reward of 1 from that arm. Second, there\'92s a method, draw, that, when called, produces 1 unit of reward with probability p. That\'92s the entirety of our abstract way of thinking about click-throughs and so on. \
+\
+\pard\tx220\tx720\pardeftab720\li720\fi-720\partightenfactor0
+\ls1\ilvl0\cf3 \cb4 \kerning1\expnd0\expndtw0 {\listtext	1.	}\expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec3 Bernoulli Bandit: each arm in the bandit has a set probability each time it\'92s pulled of returning a reward of 1 or 0\cb1 \
+\ls1\ilvl0\cb4 \kerning1\expnd0\expndtw0 \outl0\strokewidth0 {\listtext	2.	}\expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec3 Gaussian Bandit: each arm in the bandit has a mean and standard deviation that define a gaussian distribution. When pulled, it samples from that distribution to return a reward.\cb1 \
+\pard\pardeftab720\sa240\partightenfactor0
+\cf2 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \
+\pard\tx220\tx720\pardeftab720\li720\fi-720\sa293\partightenfactor0
+\ls2\ilvl0\cf2 \kerning1\expnd0\expndtw0 {\listtext	\uc0\u8226 	}\expnd0\expndtw0\kerning0
+We pass in a few objects: \
+\pard\tx940\tx1440\pardeftab720\li1440\fi-1440\sa293\partightenfactor0
+\ls2\ilvl1\cf2 \kerning1\expnd0\expndtw0 		\expnd0\expndtw0\kerning0
+\'97 \'a0A bandit algorithm that we want to test. \uc0\u8232 \
+\ls2\ilvl1\kerning1\expnd0\expndtw0 		\expnd0\expndtw0\kerning0
+\'97 \'a0An array of arms we want to simulate draws from. \uc0\u8232 \
+\ls2\ilvl1\kerning1\expnd0\expndtw0 		\expnd0\expndtw0\kerning0
+\'97 \'a0A fixed number of simultations to run to average over the noise in each simu\uc0\u8208  lation. \u8232 \
+\ls2\ilvl1\kerning1\expnd0\expndtw0 		\expnd0\expndtw0\kerning0
+\'97 \'a0The number of times each algorithm is allowed to pull on arms during each simulation. Any algorithm that\'92s not terrible will eventually learn which arm is best; the interesting thing to study in a simulation is whether an algorithm does well when it only has 100 (or 100,000) tries to find the best arm. \uc0\u8232 \
+\pard\tx220\tx720\pardeftab720\li720\fi-720\sa293\partightenfactor0
+\ls2\ilvl0\cf2 \kerning1\expnd0\expndtw0 {\listtext	\uc0\u8226 	}\expnd0\expndtw0\kerning0
+The framework then uses these objects to run many independent simulations. For each of these, it: \uc0\u8232 \'97 Initializes the bandit algorithm\'92s settings from scratch so that it has no prior knowledge about which arm is best. \u8232 \'97 Loops over opportunities to pull an arm. On each step of this loop, it: \u8232 \'97 Calls select_arm to see which arm the algorithm chooses. \u8232 \'97 Calls draw on that arm to simulate the result of pulling that arm. \u8232 \'97 Records the amount of reward received by the algorithm and then calls update to let the algorithm process that new piece of information. \u8232 \
+}
